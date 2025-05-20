@@ -46,7 +46,7 @@ library(tidyverse)
 # 2 - Importação dos microdados filtrados ######################################
 ################################################################################
 
-microdados <- readRDS("microdados_filtrados_variáveis.RDS")
+microdados <- readRDS("microdados_filtrados.RDS")
 
 
 ################################################################################

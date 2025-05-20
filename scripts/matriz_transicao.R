@@ -44,7 +44,7 @@ library(fmsb)
 # 2 - Importação dos dados filtrados ###########################################
 ################################################################################
 
-microdados <- readRDS("microdados_filtrados_variáveis.RDS")
+microdados <- readRDS("microdados_filtrados.RDS")
 
 
 ################################################################################
@@ -598,8 +598,3 @@ radarchart(radar_data,
            caxislabels = seq(0, 100, 25),
            vlcex = 0.9, 
            title = "Padrão de Transição - Mulher (Pós-pandemia)")
-
-################################################################################
-# 6 - Exportando Dados de Matriz de Transição ##################################
-################################################################################
-saveRDS(matrizes_sub, "matrizes_transicao.RDS")
