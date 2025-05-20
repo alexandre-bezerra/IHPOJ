@@ -248,7 +248,7 @@ microdados_transicao <- microdados_transicao %>%
 
 
 # Obtenção de dados de ocupação geral
-caged <- read.csv("Admissões segundo o CAGED.csv", sep=";") %>% 
+caged <- read.csv("admissoes_caged.csv", sep=";") %>% 
   mutate(data = as.Date(paste0(ano, "-", mes, "-01")))
 
 admissoes_trimestre <- caged %>%
