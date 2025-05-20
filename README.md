@@ -18,7 +18,7 @@ Aplicar técnicas de análise de transição ocupacional, modelos logísticos co
 
 ```bash
 📁 dados/
-│   ├── microdados_f_idade.RDS       # Dados da PNAD Contínua filtrados para Jovens de 14-29 anos
+│   ├── microdados_filtrados.RDS     # Dados da PNAD Contínua filtrados para Jovens de 14-29 anos, e para as variáveis relevantes
 │   └── admissoes_caged.csv          # Números mensais de admissões obtidos do CAGED (2019-2022)
 📁 scripts/
 │   ├── importacao_filtro.R          # Importação das bases anuais geradas pelo PNAD_Social no STATA, filtro de jovens e criação de variáveis de estado
