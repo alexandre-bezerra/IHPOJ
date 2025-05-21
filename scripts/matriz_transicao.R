@@ -1,5 +1,5 @@
 ################################################################################
-# Projeto:Impactos Heterogêneos da Pandemia sobre a Ocupação de Jovens no Brasil
+# Projeto: Impactos da Pandemia sobre a Ocupação de Jovens no Brasil
 # Script: Estimação de Matriz de Transição com Microdados da PNAD Contínua 
 # (2019–2022)
 # Autor: Alexandre Bezerra dos Santos
