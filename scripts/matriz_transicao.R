@@ -6,7 +6,7 @@
 # Instituição: Universidade Federal de Pernambuco
 # Orientador: Cristiano da Costa da Silva
 # Curso: Graduação em Ciências Econômicas
-# Data: 17/05/2025
+# Data: 21/05/2025
 # Versão: 1.0
 #
 # Descrição:
@@ -44,7 +44,7 @@ library(fmsb)
 # 2 - Importação dos dados filtrados ###########################################
 ################################################################################
 
-microdados <- readRDS("microdados_filtrados.RDS")
+microdados <- readRDS("../dados/microdados_filtrados.RDS")
 
 
 ################################################################################

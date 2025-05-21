@@ -53,8 +53,8 @@ importar_e_empilhar <- function(lista_arquivos) {
 }
 
 # Lista de arquivos
-arquivos <- c("PNADC2019.dta", "PNADC2020.dta", "PNADC2021.dta",
-              "PNADC2022.dta")
+arquivos <- c("../dados/PNADC2019.dta", "../dados/PNADC2020.dta",
+              "../dados/PNADC2021.dta", "../dados/PNADC2022.dta")
 
 # Importar e junção
 pnad_completo <- importar_e_empilhar(arquivos)
@@ -95,4 +95,4 @@ microdados <- microdados %>%
 # 5 - Exportação de dados filtrados ############################################
 ################################################################################
 
-saveRDS(microdados, "microdados_filtrados.RDS")
+saveRDS(microdados, "../dados/microdados_filtrados.RDS")
