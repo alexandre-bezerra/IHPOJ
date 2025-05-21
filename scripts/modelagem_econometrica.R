@@ -1,11 +1,11 @@
 ################################################################################
-# Projeto:Impactos Heterogêneos da Pandemia sobre a Ocupação de Jovens no Brasil
+# Projeto: Impactos da Pandemia sobre a Ocupação de Jovens no Brasil
 # Script: Modelagem Econométrica (Search & Matching)
 # Autor: Alexandre Bezerra dos Santos
 # Instituição: Universidade Federal de Pernambuco
 # Orientador: Cristiano da Costa da Silva
 # Curso: Graduação em Ciências Econômicas
-# Data: 20/05/2025
+# Data: 21/05/2025
 # Versão: 1.0
 #
 # Descrição:
@@ -46,7 +46,7 @@ library(tidyverse)
 # 2 - Importação dos microdados filtrados ######################################
 ################################################################################
 
-microdados <- readRDS("microdados_filtrados.RDS")
+microdados <- readRDS("../dados/microdados_filtrados.RDS")
 
 
 ################################################################################
