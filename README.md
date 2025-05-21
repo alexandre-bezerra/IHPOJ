@@ -1,6 +1,6 @@
 # 📊 Pesquisa: Juventude, Desemprego e Pandemia no Brasil (2019–2022)
 
-Este repositório contém os códigos, dados tratados e resultados da pesquisa empírica que investiga os **impactos heterogêneos da pandemia de COVID-19 sobre a inserção ocupacional de jovens no mercado de trabalho brasileiro**, utilizando microdados da PNAD Contínua Trimestral (IBGE) e dados administrativos do Novo CAGED (Ministério do Trabalho).
+Este repositório contém os códigos, dados tratados e resultados da pesquisa empírica que investiga os **impactos da pandemia de COVID-19 sobre a inserção ocupacional de jovens no mercado de trabalho brasileiro**, utilizando microdados da PNAD Contínua Trimestral (IBGE) e dados administrativos do Novo CAGED (Ministério do Trabalho).
 
 ---
 
@@ -27,7 +27,7 @@ Aplicar técnicas de análise de transição ocupacional, modelos logísticos co
 📁 resultados/
 │   ├── tabelas/                     # Saídas tabulares
 │   ├── graficos/                    # Gráficos comparativos
-│   └── relatorio.pdf                # Relatório provisório da pesquisa
+│   └── Relatorio.pdf                # Relatório provisório da pesquisa
 README.md
 ```
 
@@ -72,17 +72,12 @@ install.packages(c("tidyverse", "readr", "lubridate", "broom", "ggplot2", "ipead
 
 ---
 
-## 📝 Licença
+## 📝 Orientação e Incentivo
 
-Este projeto está licenciado sob a [MIT License](LICENSE).
-
----
-
-## 🤝 Colaboração
-
-Contribuições são bem-vindas! Caso deseje sugerir melhorias, análises adicionais ou aplicar o projeto a outras bases ou regiões, sinta-se à vontade para abrir uma *issue* ou enviar um *pull request*.
+Esta pesquisa está sendo coordenada pelo Prof. Dr. Cristiano da Costa da Silva, e financiada por Bolsa de Iniciação Científica PROPESQI-UFPE.
 
 ---
+
 
 ## 📫 Contato
 
