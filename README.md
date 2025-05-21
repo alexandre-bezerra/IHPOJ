@@ -81,7 +81,7 @@ Esta pesquisa está sendo coordenada pelo Prof. Dr. Cristiano da Costa da Silva,
 
 ## 📫 Contato
 
-Alexandre Bezerra
-Universidade Federal de Pernambuco – Curso de Ciências Econômicas
-Email: [alexandrebezerra@ufpe.br](mailto:alexandrebezerra@ufpe.br)
-Lattes: [http://lattes.cnpq.br/1196997304232080](http://lattes.cnpq.br/1196997304232080)
+Alexandre Bezerra.
+Universidade Federal de Pernambuco – Curso de Ciências Econômicas.
+Email: [alexandrebezerra@ufpe.br](mailto:alexandrebezerra@ufpe.br).
+Lattes: [http://lattes.cnpq.br/1196997304232080](http://lattes.cnpq.br/1196997304232080).
