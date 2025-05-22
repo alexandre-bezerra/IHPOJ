@@ -80,7 +80,7 @@ microdados <- microdados %>%
          Trimestre = as.numeric(Trimestre),
          id_pessoa = as.character(ind_id)) %>%
   select(c("hous_id", "id_pessoa", "Ano", "Trimestre", "V1022",
-           "UF", "V2007", "V2009","V2010","VD4001","VD4002"))
+           "UF", "V2007", "V2009","V2010","VD4001","VD4002","V3009A"))
 
 # Criação de variável ocupacional
 microdados <- microdados %>%

@@ -476,13 +476,19 @@ matrizes_long$periodo <- factor(matrizes_long$periodo,
 levels = c("Pré-pandemia", "Durante pandemia", "Pós-pandemia"))
 
 # Gráfico Global
-ggplot(matrizes_long, aes(x = interaction(de, para), y = probabilidade, 
-fill = periodo)) + geom_bar(stat = "identity", position = "dodge") +
-labs(title = "Probabilidades de Transição Ocupacional por Período", 
-x = "Transição (de → para)", y = "Probabilidade condicional", fill = "Período")
-+ scale_x_discrete(labels = c("0.0" = "Desemp → Desemp", 
-"0.1" = "Desemp → Empreg", "1.0" = "Empreg → Desemp", 
-"1.1" = "Empreg → Empreg")) + theme_minimal()
+ggplot(matrizes_long, aes(x = interaction(de, para), 
+                          y = probabilidade,
+                          fill = periodo)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Probabilidades de Transição Ocupacional por Período", 
+       x = "Transição (de → para)",
+       y = "Probabilidade condicional",
+       fill = "Período")+
+  scale_x_discrete(labels = c("0.0" = "Desemp → Desemp", 
+                              "0.1" = "Desemp → Empreg", 
+                              "1.0" = "Empreg → Desemp",
+                              "1.1" = "Empreg → Empreg")) +
+  theme_minimal()
 
 # Gráficos com heterogeneidades
 df_long <- matrizes_sub %>%

@@ -114,8 +114,8 @@ microdados_transicao <- microdados_transicao %>%
     ),
     # Agrupar localidade (capital ou interior)
     localidade = case_when(
-      V1022 == 1 ~ "Capital",
-      V1022 == 2 ~ "Interior",
+      V1022 == 1 ~ "Urbana",
+      V1022 == 2 ~ "Rural",
       TRUE ~ NA_character_
     )
   )
@@ -138,7 +138,7 @@ microdados_transicao$escolaridade <- factor(microdados_transicao$escolaridade,
                         levels = c("Fundamental ou menos","Médio", "Superior"))
 
 microdados_transicao$localidade <- factor(microdados_transicao$localidade,
-                                          levels = c("Interior", "Capital"))
+                                          levels = c("Rural", "Urbana"))
 
 microdados_transicao$periodo <- factor(microdados_transicao$periodo,
                 levels = c("Pré-pandemia", "Durante pandemia", "Pós-pandemia"))
@@ -150,24 +150,45 @@ microdados_transicao$experiencia <- factor(microdados_transicao$experiencia,
 # 4 - Especificação e Estimação de Modelos de regressão logística ##############
 ################################################################################
 
-# Modelo Sem Interações
+
+# Função para interpretar automaticamente um summary de modelo logit
+interpretar_logit_summary <- function(modelo) {
+  s <- summary(modelo)
+  cat("📌 RESUMO INTERPRETATIVO DO MODELO LOGIT\n")
+  cat("--------------------------------------------------\n")
+  cat("→ Número de observações usadas:", s$df[1] + s$df[2], "\n")
+  cat("→ Parâmetros estimados:", s$df[1], "\n")
+  cat("→ Null deviance:", s$null.deviance, "em", s$df.null, "g.l.\n")
+  cat("→ Residual deviance:", s$deviance, "em", s$df.residual, "g.l.\n")
+  cat("→ AIC do modelo:", AIC(modelo), "\n")
+  
+  if (!is.null(modelo$na.action)) {
+    cat("⚠️  Observações removidas por dados faltantes:",
+        length(modelo$na.action), "\n")
+  }
+  
+  cat("--------------------------------------------------\n")
+  cat("Coeficientes:\n")
+  printCoefmat(s$coefficients, P.values = TRUE, has.Pvalue = TRUE)
+  cat("--------------------------------------------------\n")
+  
+  # Pseudo-R² (McFadden)
+  if (requireNamespace("pscl", quietly = TRUE)) {
+    library(pscl)
+    pseudo <- pR2(modelo)
+    cat("📈 Pseudo-R² (McFadden):", round(pseudo["McFadden"], 4), "\n")
+  } else {
+    cat("ℹ️ Instale o pacote 'pscl' para obter o Pseudo-R².\n")
+  }
+}
+
+# Modelo
 modelo_logit <- glm(transicao_emprego ~ mulher + raca +
                       escolaridade + localidade + experiencia + periodo,
                     data = microdados_transicao,
                     family = binomial)
 
-summary(modelo_logit)          # Coeficientes em log-odds
-exp(coef(modelo_logit))        # Odds-ratios
-
-# Modelo com Interação
-modelo_interacoes <- glm(transicao_emprego ~ mulher * periodo + raca * periodo +
-                           escolaridade * periodo + localidade * periodo +
-                           experiencia * periodo,
-                         data = microdados_transicao,
-                         family = binomial)
-
-summary(modelo_interacoes)
-exp(coef(modelo_interacoes))
+interpretar_logit_summary(modelo_logit)
 
 ################################################################################
 # 5 - Estimação de Modelo DIF-IN-DIF com Heterogeneidades ######################
@@ -185,8 +206,7 @@ modelo_3fases <- glm(
   family = binomial
 )
 
-summary(modelo_3fases)
-exp(coef(modelo_3fases))
+interpretar_logit_summary(modelo_3fases)
 
 
 ################################################################################
@@ -248,7 +268,7 @@ microdados_transicao <- microdados_transicao %>%
 
 
 # Obtenção de dados de ocupação geral
-caged <- read.csv("admissoes_caged.csv", sep=";") %>% 
+caged <- read.csv("../dados/admissoes_caged.csv", sep=";") %>% 
   mutate(data = as.Date(paste0(ano, "-", mes, "-01")))
 
 admissoes_trimestre <- caged %>%
