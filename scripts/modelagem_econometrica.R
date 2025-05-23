@@ -5,7 +5,7 @@
 # Instituição: Universidade Federal de Pernambuco
 # Orientador: Cristiano da Costa da Silva
 # Curso: Graduação em Ciências Econômicas
-# Data: 21/05/2025
+# Data: 23/05/2025
 # Versão: 1.0
 #
 # Descrição:
@@ -29,7 +29,6 @@
 ################################################################################
 # 1 - Carregamento dos pacotes necessários #####################################
 ################################################################################
-
 library(haven)
 library(dplyr)
 library(stringr)
@@ -45,7 +44,6 @@ library(tidyverse)
 ################################################################################
 # 2 - Importação dos microdados filtrados ######################################
 ################################################################################
-
 microdados <- readRDS("../dados/microdados_filtrados.RDS")
 
 
@@ -150,7 +148,6 @@ microdados_transicao$experiencia <- factor(microdados_transicao$experiencia,
 # 4 - Especificação e Estimação de Modelos de regressão logística ##############
 ################################################################################
 
-
 # Função para interpretar automaticamente um summary de modelo logit
 interpretar_logit_summary <- function(modelo) {
   s <- summary(modelo)
@@ -193,7 +190,6 @@ interpretar_logit_summary(modelo_logit)
 ################################################################################
 # 5 - Estimação de Modelo DIF-IN-DIF com Heterogeneidades ######################
 ################################################################################
-
 microdados_transicao$pandemia_fase <- factor(
   microdados_transicao$periodo,
   levels = c("Pré-pandemia", "Durante pandemia", "Pós-pandemia")
@@ -249,90 +245,3 @@ quadro + plot_annotation(title = paste0("Efeitos marginais da pandemia por",
 " grupo social (Período x Probabilidade prevista de conseguir emprego)"))
 
 g5
-
-################################################################################
-# 7 - Aplicação de Modelo de Search & Matching #################################
-################################################################################
-
-################## CONSTRUÇÃO DE PAINEL TRIMESTRAL INTEGRADO ###################
-
-# Criação de identificação de transição para o desemprego
-microdados_transicao <- microdados_transicao %>%
-  mutate(transicao_desemprego = ifelse(estado_ocupacional == 1 & estado_t1 == 0,
-                                       1, 0)) %>%
-  filter(!is.na(transicao_desemprego))
-
-# Construção de variável de período
-microdados_transicao <- microdados_transicao %>%
-  mutate(periodo = paste(Ano, Trimestre, sep = "."))
-
-
-# Obtenção de dados de ocupação geral
-caged <- read.csv("../dados/admissoes_caged.csv", sep=";") %>% 
-  mutate(data = as.Date(paste0(ano, "-", mes, "-01")))
-
-admissoes_trimestre <- caged %>%
-  mutate(Ano = year(data),
-         Trimestre = quarter(data)) %>%
-  group_by(Ano, Trimestre) %>%
-  summarise(vagas_formais = sum(admissao), .groups = "drop") %>%
-  mutate(periodo = paste(Ano, Trimestre, sep = "."))
-
-# Criação de Painel
-painel_geral <- microdados_transicao %>%
-  mutate(periodo = paste(Ano, Trimestre, sep = ".")) %>%
-  filter(estado_ocupacional %in% c(0, 1), !is.na(estado_t1)) %>%
-  group_by(periodo) %>%
-  summarise(
-    U = sum(estado_ocupacional == 0),
-    E = sum(estado_ocupacional == 1),
-    T_UE = sum(transicao_emprego == 1, na.rm = TRUE)
-  ) %>%
-  mutate(f_t = T_UE / U)
-
-# União ao painel de jovens
-painel_geral <- painel_geral %>%
-  left_join(admissoes_trimestre, by = "periodo") %>%
-  mutate(theta_caged = vagas_formais / U)
-
-
-###################### REGRESSÃO ##############################################
-modelo_matching <- lm(log(f_t) ~ log(theta_caged), data = painel_geral)
-summary(modelo_matching)
-
-ggplot(painel_geral, aes(x = log(theta_caged), y = log(f_t))) +
-  geom_point(size = 3, color = "steelblue") +
-  geom_smooth(method = "lm", se = TRUE, color = "darkred", formula = y ~ x) +
-  labs(title = "Função de Matching Estimada com Tightness Nacional (jovens)",
-x = "log(θₜ) - Proxy nacional de tightnes )",
-       y = "log(fₜ) - Taxa de encontro dos jovens") +
-  theme_minimal()
-
-
-
-#Regressão por período e grupo (experiencia neste exemplo)
-painel_grupos <- microdados_transicao %>%
-  filter(estado_ocupacional %in% c(0, 1), !is.na(estado_t1)) %>%
-  group_by(periodo, experiencia) %>%
-  summarise(
-    U = sum(estado_ocupacional == 0),
-    T_UE = sum(transicao_emprego == 1, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  mutate(f_t = T_UE / U)
-
-painel_grupos <- painel_grupos %>%
-  left_join(admissoes_trimestre, by = "periodo") %>%
-  mutate(theta_caged = vagas_formais / U)
-
-resultados_por_experiencia <- painel_grupos %>%
-  filter(!is.na(f_t), !is.na(theta_caged)) %>%
-  group_by(experiencia) %>%
-  group_nest() %>%
-  mutate(modelo = map(data, ~ lm(log(f_t) ~ log(theta_caged), data = .x)),
-         resumo = map(modelo, tidy)) %>%
-  unnest(resumo)
-
-resultados_por_experiencia %>%
-  filter(term == "log(theta_caged)") %>%
-  select(experiencia, estimate, std.error, statistic, p.value)
