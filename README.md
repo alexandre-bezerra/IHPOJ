@@ -72,7 +72,7 @@ install.packages(c("tidyverse", "readr", "lubridate", "broom", "ggplot2", "ipead
 * Matrizes de transição de emprego mostram aumento da persistência no desemprego durante a pandemia.
 * Mulheres e negros apresentaram menor probabilidade de transição para o emprego.
 * O modelo logit com interações revelou que o efeito da pandemia foi **heterogêneo**, especialmente entre os menos escolarizados.
-* A função de matching estimada com admissões do Novo CAGED mostrou **elasticidade positiva, porém não significativa** estatisticamente.
+* A função de matching estimada com admissões do Novo CAGED mostrou **elasticidade positiva, e significativa** estatisticamente.
 * A eficiência de matching juvenil apresentou sinais de deterioração durante a pandemia.
 
 ---
