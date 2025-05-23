@@ -40,8 +40,8 @@ README.md
 
 ## 📚 Dados utilizados
 
-* **PNAD Contínua Trimestral** (IBGE): 2019.1 a 2022.4
-* **Novo CAGED** (MTE): Admissões formais mensais 2019–2022
+* **PNAD Contínua Trimestral** (IBGE): 2012.1 a 2023.4
+* **CAGED** (MTE): Admissões formais mensais 2012–2023
 * **IPEADATA**: Séries auxiliares de ocupação total
 
 ---
