@@ -19,15 +19,20 @@ Aplicar técnicas de análise de transição ocupacional, modelos logísticos co
 ```bash
 📁 dados/
 │   ├── microdados_filtrados.RDS     # Dados da PNAD Contínua filtrados para Jovens de 14-29 anos, e para as variáveis relevantes
-│   └── admissoes_caged.csv          # Números mensais de admissões obtidos do CAGED (2019-2022)
+│   ├── painel_trimestral_jovem.RDS  # Dados trimestrais de mercado de trabalho para os jovens
+│   └── admissoes_caged.csv          # Números mensais de admissões obtidos do CAGED (2019-2023)
 📁 scripts/
-│   ├── importacao_filtro.R          # Importação das bases anuais geradas pelo PNAD_Social no STATA, filtro de jovens e criação de variáveis de estado
-│   ├── matriz_transicao.R           # Construção das Matrizes de transição de Markov
-│   └── modelagem_econometrica.R     # Estimação de regressões logísticas e dif-in-dif, construção do painel de matching e estimação da função
+│   ├── importacao_filtro_matriztransicao.R          # Importação das bases anuais geradas pelo datazoom_pnadcontinua no STATA, para os anos de 2019 a 2022, filtro de jovens e criação de variáveis de estado
+│   ├── matriz_transicao.R                           # Construção das Matrizes de transição de Markov para os jovens
+|   ├── importacao_filtro_dmp                        # Importação dos dados anuais de 2012-2023, sem filtro de idade, e criação de variável de estado
+|   ├── estimacao_dmp                                # Estimação da tightness para a população em geral, para os jovens, estimação da eficiência relativa de matching para os jovens
+│   └── modelagem_econometrica.R                     # Estimação de regressões logit e dif-in-dif para as chances de emprego dos jovens controladas por suas heterogeneidades
 📁 resultados/
-│   ├── tabelas/                     # Saídas tabulares
-│   ├── graficos/                    # Gráficos comparativos
-│   └── Relatorio.pdf                # Relatório provisório da pesquisa
+│   ├── Matrizes de Transição.csv                    # Planilha com as Matrizes de Transição
+│   ├── Sumários.csv                                 # Planilha com os sumários das regressões logit e dif-in-dif
+│   ├── graficos                                     # Gráficos comparativos
+│   ├── Tabela_Mercado_de_Trabalho_juvenil.csv       # Planilha com os dados do mercado de trabalho juvenil
+│   └── Relatorio.pdf                                # Relatório provisório da pesquisa
 README.md
 ```
 
