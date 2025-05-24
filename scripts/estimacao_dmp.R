@@ -93,7 +93,7 @@ painel_geral <- microdados %>%
 
 
 # Importação e Tratamento de dados de admissões do Caged
-caged <- read.csv("../dados/admissoes_caged.csv", sep=";") # === ETAPA 2: Calcular tightness geral e estimar função de matching ===
+caged <- read.csv("../dados/admissoes_caged.csv", sep=";") 
 
 # Agregação do CAGED total por trimestre
 caged_geral <- caged %>%
@@ -193,6 +193,115 @@ ggplot(painel_jovem_eff, aes(x = periodo, y = eficiencia, group = 1)) +
     y = 'Eficiência relativa (f_t / θ_t^{1 - α})'
   ) +
   theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)
-  )
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+    
+    
+################################################################################
+# 7. Estimação por Sexo e Escolaridade #########################################
+################################################################################
+
+caged_trimestral <- caged %>%
+  mutate(ano = as.integer(ano), mes = as.integer(mes)) %>%
+  mutate(trimestre = case_when(
+    mes %in% 1:3 ~ 1,
+    mes %in% 4:6 ~ 2,
+    mes %in% 7:9 ~ 3,
+    mes %in% 10:12 ~ 4
+  )) %>%
+  mutate(periodo = paste0(ano, "T", trimestre)) %>%
+  group_by(periodo) %>%
+  summarise(
+    adm_Mulher = sum(Mulher, na.rm = TRUE),
+    adm_Homem = sum(Homem, na.rm = TRUE),
+    adm_fund = sum(`Fundamental.Incompleto`, `Fundamental.Completo`, na.rm = TRUE),
+    adm_medio = sum(`Médio.Incompleto`, `Médio.Completo`, na.rm = TRUE),
+    adm_superior = sum(`Superior.Incompleto`, `Superior.Completo`, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  pivot_longer(cols = starts_with("adm_"), names_to = "grupo", values_to = "admissoes") %>%
+  mutate(
+    tipo = case_when(
+      grupo %in% c("adm_Mulher", "adm_Homem") ~ "sexo",
+      TRUE ~ "escolaridade"
+    ),
+    categoria = case_when(
+      grupo == "adm_Mulher" ~ "Mulher",
+      grupo == "adm_Homem" ~ "Homem",
+      grupo == "adm_fund" ~ "Fundamental ou menos",
+      grupo == "adm_medio" ~ "Médio",
+      grupo == "adm_superior" ~ "Superior"
+    )
+  ) %>%
+  select(periodo, tipo, categoria, admissoes)
+
+microdados <- microdados %>% 
+  mutate(sexo_cat = ifelse(V2007 == 1, "Homem", "Mulher"),
+         periodo = paste0(Ano, "T", Trimestre))
+
+painel_matching_segmentado <- microdados %>%
+  inner_join(caged_trimestral, by = "periodo")
+
+# Painel por Sexo
+painel_sexo <- microdados %>%
+  filter(estado_ocupacional %in% c(0, 1), estado_t1 %in% c(0, 1), V2009 >= 14, V2009 <= 29) %>%
+  group_by(periodo, sexo_cat) %>%
+  summarise(U = sum(estado_ocupacional == 0),
+            E = sum(estado_ocupacional == 1),
+            T_UE = sum(transicao_emprego), .groups = "drop") %>%
+  mutate(f_t = T_UE / U)
+
+eficiencia_sexo <- painel_sexo %>%
+  left_join(filter(caged_trimestral, tipo == "sexo"), by = c("periodo", "sexo_cat" = "categoria")) %>%
+  mutate(theta = admissoes / U,
+         eficiencia = f_t / (theta^(1 - alpha_geral)))
+
+# Painel por Escolaridade
+painel_esc <- microdados %>%
+  mutate(
+    esc_nivel = case_when(
+      V3009A %in% 1:3 ~ "Fundamental ou menos",
+      V3009A %in% 4:5 ~ "Médio",
+      V3009A >= 6 ~ "Superior",
+      TRUE ~ NA_character_
+    )) %>% 
+  filter(estado_ocupacional %in% c(0, 1), estado_t1 %in% c(0, 1),
+         V2009 >= 14, V2009 <= 29, !is.na(esc_nivel)) %>%
+  group_by(periodo, esc_nivel) %>%
+  summarise(U = sum(estado_ocupacional == 0),
+            E = sum(estado_ocupacional == 1),
+            T_UE = sum(transicao_emprego), .groups = "drop") %>%
+  mutate(f_t = T_UE / U)
+
+eficiencia_esc <- painel_esc %>%
+  left_join(filter(caged_trimestral, tipo == "escolaridade"), by = c("periodo", "esc_nivel" = "categoria")) %>%
+  mutate(theta = admissoes / U,
+         eficiencia = f_t / (theta^(1 - alpha_geral)))
+
+# Gráficos
+
+grafico_sexo <- eficiencia_sexo %>%
+  ggplot(aes(x = periodo, y = eficiencia, color = sexo_cat, group = sexo_cat)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 1.6) +
+  labs(
+    title = "Eficiência de Matching dos Jovens por Sexo",
+    x = "Trimestre",
+    y = "Eficiência relativa",
+    color = "Sexo"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+
+grafico_esc <- eficiencia_esc %>%
+  ggplot(aes(x = periodo, y = eficiencia, color = esc_nivel, group = esc_nivel)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 1.6) +
+  labs(
+    title = "Eficiência de Matching dos Jovens por Escolaridade",
+    x = "Trimestre",
+    y = "Eficiência relativa",
+    color = "Escolaridade"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+
