@@ -5,7 +5,7 @@
 # Instituição: Universidade Federal de Pernambuco
 # Orientador: Cristiano da Costa da Silva
 # Curso: Graduação em Ciências Econômicas
-# Data: 22/05/2025
+# Data: 26/05/2025
 # Versão: 1.0
 #
 # Descrição:
@@ -26,11 +26,11 @@
 # Licença:
 # Este código está licenciado sob os termos da licença MIT.
 # Você pode reutilizá-lo, modificá-lo e distribuí-lo, com os devidos créditos.
-########################################################################################
+################################################################################
 
-########################################################################################
-# 1 - Carregamento dos pacotes necessários #############################################
-########################################################################################
+################################################################################
+# 1 - Carregamento dos pacotes necessários #####################################
+################################################################################
 library(haven)
 library(dplyr)
 library(stringr)
@@ -44,15 +44,16 @@ library(zoo)
 library(tidyverse)
 
 
-#########################################################################################
-# 2 - Importação dos microdados filtrados ###############################################
-#########################################################################################
-microdados <- readRDS("C:/Users/alexa/PNADC/Dados/pnadcontinua/microdados_amplo.RDS")
+################################################################################
+# 2 - Importação dos microdados filtrados ######################################
+################################################################################
+microdados <- readRDS(paste0("C:/Users/alexa/PNADC/Dados/",
+"pnadcontinua/microdados_amplo.RDS"))
 
 
-#########################################################################################
-# 3 - Preparação dos microdados e criação de novas variáveis ############################
-#########################################################################################
+################################################################################
+# 3 - Preparação dos microdados e criação de novas variáveis ###################
+################################################################################
 microdados <- microdados %>%
   arrange(hous_id, id_pessoa, Ano, Trimestre) %>%
   group_by(hous_id, id_pessoa) %>%
@@ -67,14 +68,15 @@ microdados <- microdados %>%
            (ano_t1 == Ano + 1 & trimestre_t1 == 1 & Trimestre == 4)) %>%
   mutate(
     transicao_emprego = ifelse(estado_ocupacional == 0 & estado_t1 == 1, 1, 0),
-    transicao_desemprego = ifelse(estado_ocupacional == 1 & estado_t1 == 0, 1, 0),
+    transicao_desemprego = ifelse(estado_ocupacional == 1 & estado_t1 == 0,
+                                  1, 0),
     periodo = paste0(Ano, "T", Trimestre)
   )
 
 
-##################################################################################
-# 4. Agregar dados populacionais e estimar theta global #########################
-#################################################################################
+################################################################################
+# 4. Agregar dados populacionais e estimar theta global ########################
+################################################################################
 painel_geral <- microdados %>%
   filter(estado_ocupacional %in% c(0, 1), estado_t1 %in% c(0, 1)) %>%
   group_by(periodo) %>%
@@ -157,7 +159,8 @@ caged_jovem_trimestral <- caged %>%
   )) %>%
   mutate(adm_jovens = `até.17` + `X18.a.24` + `X25.a.29`) %>%
   group_by(ano, trimestre) %>%
-  summarise(admissoes_jovens = sum(adm_jovens, na.rm = TRUE), .groups = "drop") %>%
+  summarise(admissoes_jovens = sum(adm_jovens, na.rm = TRUE),
+            .groups = "drop") %>%
   mutate(periodo = paste0(ano, "T", trimestre)) %>%
   select(periodo, admissoes_jovens)
 
@@ -213,12 +216,15 @@ caged_trimestral <- caged %>%
   summarise(
     adm_Mulher = sum(Mulher, na.rm = TRUE),
     adm_Homem = sum(Homem, na.rm = TRUE),
-    adm_fund = sum(`Fundamental.Incompleto`, `Fundamental.Completo`, na.rm = TRUE),
+    adm_fund = sum(`Fundamental.Incompleto`, `Fundamental.Completo`,
+                   na.rm = TRUE),
     adm_medio = sum(`Médio.Incompleto`, `Médio.Completo`, na.rm = TRUE),
-    adm_superior = sum(`Superior.Incompleto`, `Superior.Completo`, na.rm = TRUE),
+    adm_superior = sum(`Superior.Incompleto`, `Superior.Completo`,
+                       na.rm = TRUE),
     .groups = "drop"
   ) %>%
-  pivot_longer(cols = starts_with("adm_"), names_to = "grupo", values_to = "admissoes") %>%
+  pivot_longer(cols = starts_with("adm_"), names_to = "grupo",
+               values_to = "admissoes") %>%
   mutate(
     tipo = case_when(
       grupo %in% c("adm_Mulher", "adm_Homem") ~ "sexo",
@@ -235,15 +241,15 @@ caged_trimestral <- caged %>%
   select(periodo, tipo, categoria, admissoes)
 
 microdados <- microdados %>% 
-  mutate(sexo_cat = ifelse(V2007 == 1, "Homem", "Mulher"),
-         periodo = paste0(Ano, "T", Trimestre))
+  mutate(sexo_cat = ifelse(V2007 == 1, "Homem", "Mulher"))
 
 painel_matching_segmentado <- microdados %>%
   inner_join(caged_trimestral, by = "periodo")
 
 # Painel por Sexo
 painel_sexo <- microdados %>%
-  filter(estado_ocupacional %in% c(0, 1), estado_t1 %in% c(0, 1), V2009 >= 14, V2009 <= 29) %>%
+  filter(estado_ocupacional %in% c(0, 1), estado_t1 %in% c(0, 1),
+         V2009 >= 14, V2009 <= 29) %>%
   group_by(periodo, sexo_cat) %>%
   summarise(U = sum(estado_ocupacional == 0),
             E = sum(estado_ocupacional == 1),
@@ -251,7 +257,8 @@ painel_sexo <- microdados %>%
   mutate(f_t = T_UE / U)
 
 eficiencia_sexo <- painel_sexo %>%
-  left_join(filter(caged_trimestral, tipo == "sexo"), by = c("periodo", "sexo_cat" = "categoria")) %>%
+  left_join(filter(caged_trimestral, tipo == "sexo"),
+            by = c("periodo", "sexo_cat" = "categoria")) %>%
   mutate(theta = admissoes / U,
          eficiencia = f_t / (theta^(1 - alpha_geral)))
 
@@ -273,7 +280,8 @@ painel_esc <- microdados %>%
   mutate(f_t = T_UE / U)
 
 eficiencia_esc <- painel_esc %>%
-  left_join(filter(caged_trimestral, tipo == "escolaridade"), by = c("periodo", "esc_nivel" = "categoria")) %>%
+  left_join(filter(caged_trimestral, tipo == "escolaridade"),
+            by = c("periodo", "esc_nivel" = "categoria")) %>%
   mutate(theta = admissoes / U,
          eficiencia = f_t / (theta^(1 - alpha_geral)))
 
@@ -293,7 +301,8 @@ grafico_sexo <- eficiencia_sexo %>%
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
 grafico_esc <- eficiencia_esc %>%
-  ggplot(aes(x = periodo, y = eficiencia, color = esc_nivel, group = esc_nivel)) +
+  ggplot(aes(x = periodo, y = eficiencia, color = esc_nivel,
+             group = esc_nivel)) +
   geom_line(size = 1.2) +
   geom_point(size = 1.6) +
   labs(
@@ -305,3 +314,197 @@ grafico_esc <- eficiencia_esc %>%
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
+
+################################################################################
+# 8 - Estimação do Modelo estrutural DMP #######################################
+################################################################################
+
+# Filtro do período de 2016 a 2019
+painel_jovem_equilibrio <- painel_jovem_eff %>%
+  mutate(ano = as.integer(substr(periodo, 1, 4))) %>%
+  filter(ano >= 2016 & ano <= 2019)
+
+# Calculo das médias dos parâmetros estruturais empíricos para o período
+parametros_juventude <- painel_jovem_equilibrio %>%
+  summarise(
+    u_barra = mean(u_t, na.rm = TRUE),
+    f_barra = mean(f_t, na.rm = TRUE),
+    s_barra = mean(s_t, na.rm = TRUE),
+    theta_barra = mean(theta_jovem, na.rm = TRUE)
+  )
+
+# Parâmetros calibrados
+r <- 0.0125         # taxa de desconto trimestral (5% anual)
+beta <- 0.5         # poder de barganha
+alpha <- alpha_geral  # elasticidade estimada da função de matching
+z_share <- 0.4      # valor de fora como fração de y (ajustável)
+
+# Dados empíricos
+u <- parametros_juventude$u_barra
+f <- parametros_juventude$f_barra
+s <- parametros_juventude$s_barra
+theta <- parametros_juventude$theta_barra
+q_theta <- f / theta
+
+# Otimização para estimar y, w, z e c
+resolver_dmp <- function(y_val) {
+  z_val <- z_share * y_val
+  w <- (1 - beta) * z_val + beta * y_val
+  c <- q_theta * (y_val - w) / (r + s)
+  w_barganha <- (1 - beta) * z_val + beta * (y_val + c * theta)
+  return((w_barganha - w)^2)
+}
+
+y_otim <- optimize(resolver_dmp, interval = c(0.1, 10), tol = 1e-6)$minimum
+y_val <- y_otim
+z_val <- z_share * y_val
+w_val <- (1 - beta) * z_val + beta * y_val
+c_val <- q_theta * (y_val - w_val) / (r + s)
+
+parametros_pre <- list(
+  y = y_val,
+  z = z_val,
+  w = w_val,
+  c = c_val,
+  u = u,
+  f = f,
+  s = s,
+  theta = theta,
+  alpha = alpha,
+  beta = beta,
+  r = r
+)
+
+# Estimando equilíbrio pandêmico
+painel_pandemia <- painel_jovem_eff %>%
+  mutate(ano = as.integer(substr(periodo, 1, 4))) %>%
+  filter(ano %in% c(2020, 2021))
+
+parametros_pandemia <- painel_pandemia %>%
+  summarise(
+    u_barra = mean(u_t, na.rm = TRUE),
+    f_barra = mean(f_t, na.rm = TRUE),
+    s_barra = mean(s_t, na.rm = TRUE),
+    theta_barra = mean(theta_jovem, na.rm = TRUE)
+  )
+
+u <- parametros_pandemia$u_barra
+f <- parametros_pandemia$f_barra
+s <- parametros_pandemia$s_barra
+theta <- parametros_pandemia$theta_barra
+q_theta <- f / theta
+
+y_otim <- optimize(resolver_dmp, interval = c(0.1, 10), tol = 1e-6)$minimum
+y_val <- y_otim
+z_val <- z_share * y_val
+w_val <- (1 - beta) * z_val + beta * y_val
+c_val <- q_theta * (y_val - w_val) / (r + s)
+
+parametros_pan <- list(
+  y = y_val,
+  z = z_val,
+  w = w_val,
+  c = c_val,
+  u = u,
+  f = f,
+  s = s,
+  theta = theta,
+  alpha = alpha,
+  beta = beta,
+  r = r
+)
+
+# Estimação equilíbrio pós-pandêmico
+painel_pospandemia <- painel_jovem_eff %>%
+  mutate(ano = as.integer(substr(periodo, 1, 4))) %>%
+  filter(ano %in% c(2022, 2023))
+
+parametros_pospandemia <- painel_pospandemia %>%
+  summarise(
+    u_barra = mean(u_t, na.rm = TRUE),
+    f_barra = mean(f_t, na.rm = TRUE),
+    s_barra = mean(s_t, na.rm = TRUE),
+    theta_barra = mean(theta_jovem, na.rm = TRUE)
+  )
+
+u <- parametros_pospandemia$u_barra
+f <- parametros_pospandemia$f_barra
+s <- parametros_pospandemia$s_barra
+theta <- parametros_pospandemia$theta_barra
+q_theta <- f / theta
+
+y_otim <- optimize(resolver_dmp, interval = c(0.1, 10), tol = 1e-6)$minimum
+y_val <- y_otim
+z_val <- z_share * y_val
+w_val <- (1 - beta) * z_val + beta * y_val
+c_val <- q_theta * (y_val - w_val) / (r + s)
+
+parametros_pos <- list(
+  y = y_val,
+  z = z_val,
+  w = w_val,
+  c = c_val,
+  u = u,
+  f = f,
+  s = s,
+  theta = theta,
+  alpha = alpha,
+  beta = beta,
+  r = r
+)
+
+# Resultados
+tabela_comparativa <- data.frame(periodo = c("Pré-pandemia (2016-2019)",
+                                             "Durante Pandemia (2020-2021)",
+                                             "Pós-Pandemia (2022-2023)"),
+                                y = c(parametros_pre$y, parametros_pan$y,
+                                      parametros_pos$y),
+                                z = c(parametros_pre$z, parametros_pan$z,
+                                      parametros_pos$z),
+                                w = c(parametros_pre$w, parametros_pan$w,
+                                      parametros_pos$w),
+                                c = c(parametros_pre$c, parametros_pan$c,
+                                      parametros_pos$c),
+                                u = c(parametros_pre$u, parametros_pan$u,
+                                      parametros_pos$u),
+                                f = c(parametros_pre$f, parametros_pan$f,
+                                      parametros_pos$f),
+                                s = c(parametros_pre$s, parametros_pan$s,
+                                      parametros_pos$s),
+                                theta = c(parametros_pre$theta,
+                                          parametros_pan$theta,
+                                          parametros_pos$theta),
+                                alpha = c(parametros_pre$alpha,
+                                          parametros_pan$alpha,
+                                          parametros_pos$alpha),
+                                beta = c(parametros_pre$beta,
+                                         parametros_pan$beta,
+                                         parametros_pos$beta),
+                                r = c(parametros_pre$r, parametros_pan$r,
+                                      parametros_pos$r))
+
+
+tabela_comparativa$periodo <- factor(
+  tabela_comparativa$periodo,
+  levels = c("Pré-pandemia (2016-2019)", "Durante Pandemia (2020-2021)",
+             "Pós-Pandemia (2022-2023)")
+)
+
+# Assumir que "tabela_comparativa" foi previamente criada
+dados_long <- tabela_comparativa %>%
+  pivot_longer(cols = -periodo, names_to = "parametro", values_to = "valor")
+
+# Gráficos comparativos
+ggplot(dados_long, aes(x = periodo, y = valor, fill = periodo)) +
+  geom_col(position = "dodge", color = "black") +
+  facet_wrap(~ parametro, scales = "free_y", ncol = 2) +
+  labs(
+    title = "Comparação dos Parâmetros Estruturais do Modelo DMP",
+    x = "Período",
+    y = "Valor estimado"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 20, hjust = 1),
+    legend.position = "none"
+  )
