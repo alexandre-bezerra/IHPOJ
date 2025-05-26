@@ -32,7 +32,7 @@ Aplicar técnicas de análise de transição ocupacional, modelos logísticos co
 │   ├── Sumários.csv                                 # Planilha com os sumários das regressões logit e dif-in-dif
 │   ├── graficos                                     # Gráficos comparativos
 │   ├── Tabela_Mercado_de_Trabalho_juvenil.csv       # Planilha com os dados do mercado de trabalho juvenil
-│   └── Relatorio.pdf                                # Relatório provisório da pesquisa
+│   └── Relatorio da Pesquisa.pdf                    # Relatório provisório da pesquisa
 README.md
 ```
 
