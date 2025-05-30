@@ -24,8 +24,8 @@ Aplicar técnicas de análise de transição ocupacional, modelos logísticos co
 📁 scripts/
 │   ├── importacao_filtro_matriztransicao.R          # Importação das bases anuais geradas pelo datazoom_pnadcontinua no STATA, para os anos de 2019 a 2022, filtro de jovens e criação de variáveis de estado
 │   ├── matriz_transicao.R                           # Construção das Matrizes de transição de Markov para os jovens
-|   ├── importacao_filtro_dmp                        # Importação dos dados anuais de 2012-2023, sem filtro de idade, e criação de variável de estado
-|   ├── estimacao_dmp                                # Estimação da tightness para a população em geral, para os jovens, estimação da eficiência relativa de matching para os jovens
+|   ├── importacao_filtro_dmp.R                      # Importação dos dados anuais de 2012-2023, sem filtro de idade, e criação de variável de estado
+|   ├── estimacao_dmp.R                              # Estimação da tightness para a população em geral, para os jovens, estimação da eficiência relativa de matching para os jovens
 │   └── modelagem_econometrica.R                     # Estimação de regressões logit e dif-in-dif para as chances de emprego dos jovens controladas por suas heterogeneidades
 📁 resultados/
 │   ├── Matrizes de Transição.csv                    # Planilha com as Matrizes de Transição
